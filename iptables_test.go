@@ -10,11 +10,11 @@ func TestOpen(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fmt.Printf("\n\nip4tables:\n----------\n")
+	fmt.Printf("ip4tables:\n----------\n")
 	chains := s.Chains()
 	fmt.Printf("chains: %v\n", chains)
 
-	for _, chain := range(chains) {
+	for _, chain := range chains {
 		counter, err := s.Counters(chain)
 
 		if s.BuiltinChain(chain) {
@@ -30,8 +30,9 @@ func TestOpen(t *testing.T) {
 			fmt.Printf("%v\n", chain)
 		}
 
-		for i, counter := range(s.RuleCounters(chain)) {
-			fmt.Printf("    rule %d: %d packets, %d bytes\n", i, counter.Packets, counter.Bytes) }
+		for i, rule := range s.Rules(chain) {
+			fmt.Printf("    rule %d: %s\n", i, rule)
+		}
 	}
 
 	s6, err := NewIP6Tables("filter")
@@ -40,11 +41,11 @@ func TestOpen(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fmt.Printf("\n\nip6tables:\n----------\n")
+	fmt.Printf("\nip6tables:\n----------\n")
 	chains = s6.Chains()
 	fmt.Printf("chains: %v\n", chains)
 
-	for _, chain := range(chains) {
+	for _, chain := range chains {
 		counter, err := s6.Counters(chain)
 
 		if s6.BuiltinChain(chain) {
@@ -60,8 +61,8 @@ func TestOpen(t *testing.T) {
 			fmt.Printf("%v\n", chain)
 		}
 
-		for i, counter := range(s6.RuleCounters(chain)) {
-			fmt.Printf("    rule %d: %d packets, %d bytes\n", i, counter.Packets, counter.Bytes)
+		for i, rule := range s6.Rules(chain) {
+			fmt.Printf("    rule %d: %s\n", i, rule)
 		}
 	}
 }
