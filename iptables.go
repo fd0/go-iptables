@@ -62,6 +62,10 @@ func NewIPTables(table string) (*IPTables, error) {
 }
 
 func (s *IPTables) Chains() []string {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	chains := []string{}
 
 	for c := C.iptc_first_chain(s.h); c != nil; c = C.iptc_next_chain(s.h) {
@@ -72,6 +76,10 @@ func (s *IPTables) Chains() []string {
 }
 
 func (s *IPTables) BuiltinChain(chain string) bool {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	cname := C.CString(chain)
 	defer C.free(unsafe.Pointer(cname))
 
@@ -79,6 +87,10 @@ func (s *IPTables) BuiltinChain(chain string) bool {
 }
 
 func (s *IPTables) Counters(chain string) (*Counter, error) {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	if !s.BuiltinChain(chain) {
 		return nil, ErrorCustomChain
 	}
@@ -100,7 +112,11 @@ func (s *IPTables) Counters(chain string) (*Counter, error) {
 	return c, nil
 }
 
-func (s *IPTables) Rules(chain string) []*Rule {
+func (s *IPTables) Rules(chain string) ([]*Rule) {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	cname := C.CString(chain)
 	defer C.free(unsafe.Pointer(cname))
 
@@ -161,6 +177,40 @@ func (s *IPTables) Rules(chain string) []*Rule {
 	return rules
 }
 
+func (s *IPTables) Zero(chain string) error {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
+	cname := C.CString(chain)
+	defer C.free(unsafe.Pointer(cname))
+
+	ret, err := C.iptc_zero_entries(cname, s.h)
+
+	if err != nil || ret != 1 {
+		return err
+	}
+
+	return nil
+}
+
+// commit and free resources
+func (s *IPTables) Close() error {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
+	ret, err := C.iptc_commit(s.h)
+	if err != nil || ret != 1 {
+		return err
+	}
+
+	C.iptc_free(s.h)
+	s.h = nil
+
+	return nil
+}
+
 func NewIP6Tables(table string) (*IP6Tables, error) {
 	cname := C.CString(table)
 	defer C.free(unsafe.Pointer(cname))
@@ -175,6 +225,10 @@ func NewIP6Tables(table string) (*IP6Tables, error) {
 }
 
 func (s *IP6Tables) Chains() []string {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	chains := []string{}
 
 	for c := C.ip6tc_first_chain(s.h); c != nil; c = C.ip6tc_next_chain(s.h) {
@@ -185,6 +239,10 @@ func (s *IP6Tables) Chains() []string {
 }
 
 func (s *IP6Tables) BuiltinChain(chain string) bool {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	cname := C.CString(chain)
 	defer C.free(unsafe.Pointer(cname))
 
@@ -192,6 +250,10 @@ func (s *IP6Tables) BuiltinChain(chain string) bool {
 }
 
 func (s *IP6Tables) Counters(chain string) (*Counter, error) {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	if !s.BuiltinChain(chain) {
 		return nil, ErrorCustomChain
 	}
@@ -214,6 +276,10 @@ func (s *IP6Tables) Counters(chain string) (*Counter, error) {
 }
 
 func (s *IP6Tables) Rules(chain string) []*Rule {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
 	cname := C.CString(chain)
 	defer C.free(unsafe.Pointer(cname))
 
@@ -274,6 +340,44 @@ func (s *IP6Tables) Rules(chain string) []*Rule {
 	return rules
 }
 
+func (s *IP6Tables) Zero(chain string) error {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
+	cname := C.CString(chain)
+	defer C.free(unsafe.Pointer(cname))
+
+	ret, err := C.ip6tc_zero_entries(cname, s.h)
+
+	if err != nil || ret != 1 {
+		return err
+	}
+
+	return nil
+}
+
+// commit and free resources
+func (s *IP6Tables) Close() error {
+	if s.h == nil {
+		panic("trying to use libiptc handle after Close()")
+	}
+
+	if s.h == nil {
+		return nil;
+	}
+
+	ret, err := C.ip6tc_commit(s.h)
+	if err != nil || ret != 1 {
+		return err
+	}
+
+	C.ip6tc_free(s.h)
+	s.h = nil
+
+	return nil
+}
+
 func (r Rule) String() string {
 	return fmt.Sprintf("in: %s%s, out: %s%s, %s%s -> %s%s: %d packets, %d bytes",
 		r.Not.InDev, r.InDev,
@@ -289,3 +393,4 @@ func (n Not) String() string {
 	}
 	return " "
 }
+

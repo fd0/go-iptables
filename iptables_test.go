@@ -33,7 +33,13 @@ func TestOpen(t *testing.T) {
 		for i, rule := range s.Rules(chain) {
 			fmt.Printf("    rule %d: %s\n", i, rule)
 		}
+
+		err = s.Zero(chain)
+		if err != nil {
+			t.Fatalf("error zeroing chain %s: %v", chain, err)
+		}
 	}
+	s.Close()
 
 	s6, err := NewIP6Tables("filter")
 
@@ -64,5 +70,11 @@ func TestOpen(t *testing.T) {
 		for i, rule := range s6.Rules(chain) {
 			fmt.Printf("    rule %d: %s\n", i, rule)
 		}
+
+		err = s6.Zero(chain)
+		if err != nil {
+			t.Fatalf("error zeroing chain %s: %v", chain, err)
+		}
 	}
+	s6.Close()
 }
