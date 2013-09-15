@@ -5,10 +5,10 @@ import "testing"
 
 func TestOpen(t *testing.T) {
 	s, err := NewIPTables("raw")
-
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer s.Close()
 
 	fmt.Printf("ip4tables:\n----------\n")
 	chains := s.Chains()
@@ -39,13 +39,12 @@ func TestOpen(t *testing.T) {
 			t.Fatalf("error zeroing chain %s: %v", chain, err)
 		}
 	}
-	s.Close()
 
 	s6, err := NewIP6Tables("raw")
-
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer s6.Close()
 
 	fmt.Printf("\nip6tables:\n----------\n")
 	chains = s6.Chains()
@@ -76,5 +75,4 @@ func TestOpen(t *testing.T) {
 			t.Fatalf("error zeroing chain %s: %v", chain, err)
 		}
 	}
-	s6.Close()
 }
