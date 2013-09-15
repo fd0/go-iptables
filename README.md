@@ -1,3 +1,5 @@
+This is just a small stub to access libiptc-function from go code.
+
 Test:
 ```
 go test -c

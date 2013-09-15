@@ -4,7 +4,7 @@ import "fmt"
 import "testing"
 
 func TestOpen(t *testing.T) {
-	s, err := NewIPTables("raw")
+	s, err := NewIPTables("filter")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func TestOpen(t *testing.T) {
 		}
 	}
 
-	s6, err := NewIP6Tables("raw")
+	s6, err := NewIP6Tables("filter")
 	if err != nil {
 		t.Fatal(err)
 	}
