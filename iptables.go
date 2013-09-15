@@ -48,8 +48,17 @@ var (
 	ErrorCustomChain = errors.New("this chain has no counters")
 )
 
+type IPTabler interface {
+   BuiltinChain(string) bool
+   Chains() []string
+   Close() error
+   Counters(chain string) (*Counter, error)
+   Rules(chain string) []*Rule
+   Zero(chain string) error
+}
+
 // Make a snapshot of the current iptables rules
-func NewIPTables(table string) (*IPTables, error) {
+func NewIPTables(table string) (IPTabler, error) {
 	cname := C.CString(table)
 	defer C.free(unsafe.Pointer(cname))
 	s := new(IPTables)
@@ -218,7 +227,7 @@ func (s *IPTables) Close() error {
 	return nil
 }
 
-func NewIP6Tables(table string) (*IP6Tables, error) {
+func NewIP6Tables(table string) (IPTabler, error) {
 	cname := C.CString(table)
 	defer C.free(unsafe.Pointer(cname))
 	s := new(IP6Tables)
