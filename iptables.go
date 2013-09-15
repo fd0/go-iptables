@@ -25,14 +25,14 @@ type IP6Tables struct {
 type Not bool
 
 type Rule struct {
-	Src          *net.IPNet
-	Dest         *net.IPNet
-	InDev        string
-	OutDev       string
-	Not struct {
-		Src Not
-		Dest Not
-		InDev Not
+	Src    *net.IPNet
+	Dest   *net.IPNet
+	InDev  string
+	OutDev string
+	Not    struct {
+		Src    Not
+		Dest   Not
+		InDev  Not
 		OutDev Not
 	}
 	Target string
@@ -49,12 +49,12 @@ var (
 )
 
 type IPTabler interface {
-   BuiltinChain(string) bool
-   Chains() []string
-   Close() error
-   Counters(chain string) (*Counter, error)
-   Rules(chain string) []*Rule
-   Zero(chain string) error
+	BuiltinChain(string) bool
+	Chains() []string
+	Close() error
+	Counters(chain string) (*Counter, error)
+	Rules(chain string) []*Rule
+	Zero(chain string) error
 }
 
 // Make a snapshot of the current iptables rules
@@ -122,7 +122,7 @@ func (s *IPTables) Counters(chain string) (*Counter, error) {
 	return c, nil
 }
 
-func (s *IPTables) Rules(chain string) ([]*Rule) {
+func (s *IPTables) Rules(chain string) []*Rule {
 	if s.h == nil {
 		panic("trying to use libiptc handle after Close()")
 	}
@@ -142,10 +142,10 @@ func (s *IPTables) Rules(chain string) ([]*Rule) {
 		// read network interfaces
 		c.InDev = C.GoString(&r.ip.iniface[0])
 		c.OutDev = C.GoString(&r.ip.outiface[0])
-		if r.ip.invflags & C.IPT_INV_VIA_IN != 0 {
+		if r.ip.invflags&C.IPT_INV_VIA_IN != 0 {
 			c.Not.InDev = true
 		}
-		if r.ip.invflags & C.IPT_INV_VIA_OUT != 0 {
+		if r.ip.invflags&C.IPT_INV_VIA_OUT != 0 {
 			c.Not.OutDev = true
 		}
 
@@ -161,7 +161,7 @@ func (s *IPTables) Rules(chain string) ([]*Rule) {
 			byte((mask>>8)&0xff),
 			byte((mask>>16)&0xff),
 			byte((mask>>24)&0xff))
-		if r.ip.invflags & C.IPT_INV_SRCIP != 0 {
+		if r.ip.invflags&C.IPT_INV_SRCIP != 0 {
 			c.Not.Src = true
 		}
 
@@ -177,7 +177,7 @@ func (s *IPTables) Rules(chain string) ([]*Rule) {
 			byte((mask>>8)&0xff),
 			byte((mask>>16)&0xff),
 			byte((mask>>24)&0xff))
-		if r.ip.invflags & C.IPT_INV_DSTIP != 0 {
+		if r.ip.invflags&C.IPT_INV_DSTIP != 0 {
 			c.Not.Dest = true
 		}
 
@@ -311,10 +311,10 @@ func (s *IP6Tables) Rules(chain string) []*Rule {
 		// read network interfaces
 		c.InDev = C.GoString(&r.ipv6.iniface[0])
 		c.OutDev = C.GoString(&r.ipv6.outiface[0])
-		if r.ipv6.invflags & C.IP6T_INV_VIA_IN != 0 {
+		if r.ipv6.invflags&C.IP6T_INV_VIA_IN != 0 {
 			c.Not.InDev = true
 		}
-		if r.ipv6.invflags & C.IP6T_INV_VIA_OUT != 0 {
+		if r.ipv6.invflags&C.IP6T_INV_VIA_OUT != 0 {
 			c.Not.OutDev = true
 		}
 
@@ -330,7 +330,7 @@ func (s *IP6Tables) Rules(chain string) []*Rule {
 			mask[4], mask[5], mask[6], mask[7],
 			mask[8], mask[9], mask[10], mask[11],
 			mask[12], mask[13], mask[14], mask[15]}
-		if r.ipv6.invflags & C.IP6T_INV_SRCIP != 0 {
+		if r.ipv6.invflags&C.IP6T_INV_SRCIP != 0 {
 			c.Not.Src = true
 		}
 
@@ -346,7 +346,7 @@ func (s *IP6Tables) Rules(chain string) []*Rule {
 			mask[4], mask[5], mask[6], mask[7],
 			mask[8], mask[9], mask[10], mask[11],
 			mask[12], mask[13], mask[14], mask[15]}
-		if r.ipv6.invflags & C.IP6T_INV_DSTIP != 0 {
+		if r.ipv6.invflags&C.IP6T_INV_DSTIP != 0 {
 			c.Not.Dest = true
 		}
 
@@ -386,7 +386,7 @@ func (s *IP6Tables) Close() error {
 	}
 
 	if s.h == nil {
-		return nil;
+		return nil
 	}
 
 	ret, err := C.ip6tc_commit(s.h)
@@ -416,4 +416,3 @@ func (n Not) String() string {
 	}
 	return " "
 }
-
