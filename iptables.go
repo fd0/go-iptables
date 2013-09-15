@@ -35,6 +35,7 @@ type Rule struct {
 		InDev Not
 		OutDev Not
 	}
+	Target string
 	Counter
 }
 
@@ -169,6 +170,12 @@ func (s *IPTables) Rules(chain string) ([]*Rule) {
 			byte((mask>>24)&0xff))
 		if r.ip.invflags & C.IPT_INV_DSTIP != 0 {
 			c.Not.Dest = true
+		}
+
+		// read target
+		target := C.iptc_get_target(r, s.h)
+		if target != nil {
+			c.Target = C.GoString(target)
 		}
 
 		rules = append(rules, c)
@@ -379,11 +386,12 @@ func (s *IP6Tables) Close() error {
 }
 
 func (r Rule) String() string {
-	return fmt.Sprintf("in: %s%s, out: %s%s, %s%s -> %s%s: %d packets, %d bytes",
+	return fmt.Sprintf("in: %s%s, out: %s%s, %s%s -> %s%s -> %s: %d packets, %d bytes",
 		r.Not.InDev, r.InDev,
 		r.Not.OutDev, r.OutDev,
 		r.Not.Src, r.Src,
 		r.Not.Dest, r.Dest,
+		r.Target,
 		r.Packets, r.Bytes)
 }
 

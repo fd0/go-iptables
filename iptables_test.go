@@ -4,7 +4,7 @@ import "fmt"
 import "testing"
 
 func TestOpen(t *testing.T) {
-	s, err := NewIPTables("filter")
+	s, err := NewIPTables("raw")
 
 	if err != nil {
 		t.Fatal(err)
