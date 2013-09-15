@@ -41,7 +41,7 @@ func TestOpen(t *testing.T) {
 	}
 	s.Close()
 
-	s6, err := NewIP6Tables("filter")
+	s6, err := NewIP6Tables("raw")
 
 	if err != nil {
 		t.Fatal(err)

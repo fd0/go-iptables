@@ -341,6 +341,12 @@ func (s *IP6Tables) Rules(chain string) []*Rule {
 			c.Not.Dest = true
 		}
 
+		// read target
+		target := C.ip6tc_get_target(r, s.h)
+		if target != nil {
+			c.Target = C.GoString(target)
+		}
+
 		rules = append(rules, c)
 	}
 
