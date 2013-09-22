@@ -67,17 +67,17 @@ var (
 	ErrorCustomChain = errors.New("this chain has no counters")
 )
 
-type IPTabler interface {
+type IPTable interface {
 	BuiltinChain(string) bool
 	Chains() []string
 	Close() error
-	Counters(chain string) (*Counter, error)
+	Counter(chain string) (*Counter, error)
 	Rules(chain string) []*Rule
 	Zero(chain string) error
 }
 
 // Make a snapshot of the current iptables rules
-func NewIPTables(table string) (IPTabler, error) {
+func NewIPTables(table string) (IPTable, error) {
 	cname := C.CString(table)
 	defer C.free(unsafe.Pointer(cname))
 	s := new(IPTables)
@@ -115,7 +115,7 @@ func (s *IPTables) BuiltinChain(chain string) bool {
 	return int(C.iptc_builtin(cname, s.h)) != 0
 }
 
-func (s *IPTables) Counters(chain string) (*Counter, error) {
+func (s *IPTables) Counter(chain string) (*Counter, error) {
 	if s.h == nil {
 		panic("trying to use libiptc handle after Close()")
 	}
@@ -246,7 +246,7 @@ func (s *IPTables) Close() error {
 	return nil
 }
 
-func NewIP6Tables(table string) (IPTabler, error) {
+func NewIP6Tables(table string) (IPTable, error) {
 	cname := C.CString(table)
 	defer C.free(unsafe.Pointer(cname))
 	s := new(IP6Tables)
@@ -284,7 +284,7 @@ func (s *IP6Tables) BuiltinChain(chain string) bool {
 	return int(C.ip6tc_builtin(cname, s.h)) != 0
 }
 
-func (s *IP6Tables) Counters(chain string) (*Counter, error) {
+func (s *IP6Tables) Counter(chain string) (*Counter, error) {
 	if s.h == nil {
 		panic("trying to use libiptc handle after Close()")
 	}

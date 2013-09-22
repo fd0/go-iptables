@@ -33,7 +33,7 @@ func TestOpen(t *testing.T) {
 	fmt.Printf("chains: %v\n", chains)
 
 	for _, chain := range chains {
-		counter, err := s.Counters(chain)
+		counter, err := s.Counter(chain)
 
 		if s.BuiltinChain(chain) {
 			if err != nil {
@@ -69,7 +69,7 @@ func TestOpen(t *testing.T) {
 	fmt.Printf("chains: %v\n", chains)
 
 	for _, chain := range chains {
-		counter, err := s6.Counters(chain)
+		counter, err := s6.Counter(chain)
 
 		if s6.BuiltinChain(chain) {
 			if err != nil {
