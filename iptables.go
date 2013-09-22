@@ -71,7 +71,7 @@ type IPTable interface {
 	BuiltinChain(string) bool
 	Chains() []string
 	Close() error
-	Counter(chain string) (*Counter, error)
+	Counter(chain string) (Counter, error)
 	Rules(chain string) []*Rule
 	Zero(chain string) error
 }
@@ -115,13 +115,14 @@ func (s *IPTables) BuiltinChain(chain string) bool {
 	return int(C.iptc_builtin(cname, s.h)) != 0
 }
 
-func (s *IPTables) Counter(chain string) (*Counter, error) {
+func (s *IPTables) Counter(chain string) (Counter, error) {
+	var c Counter
 	if s.h == nil {
 		panic("trying to use libiptc handle after Close()")
 	}
 
 	if !s.BuiltinChain(chain) {
-		return nil, ErrorCustomChain
+		return c, ErrorCustomChain
 	}
 
 	cname := C.CString(chain)
@@ -131,14 +132,13 @@ func (s *IPTables) Counter(chain string) (*Counter, error) {
 	_, err := C.iptc_get_policy(cname, count, s.h)
 
 	if err != nil {
-		return nil, err
+		return c, err
 	}
-
-	c := new(Counter)
 	c.Packets = uint64(count.pcnt)
 	c.Bytes = uint64(count.bcnt)
 
 	return c, nil
+
 }
 
 func (s *IPTables) Rules(chain string) []*Rule {
@@ -284,13 +284,14 @@ func (s *IP6Tables) BuiltinChain(chain string) bool {
 	return int(C.ip6tc_builtin(cname, s.h)) != 0
 }
 
-func (s *IP6Tables) Counter(chain string) (*Counter, error) {
+func (s *IP6Tables) Counter(chain string) (Counter, error) {
+	var c Counter
 	if s.h == nil {
 		panic("trying to use libiptc handle after Close()")
 	}
 
 	if !s.BuiltinChain(chain) {
-		return nil, ErrorCustomChain
+		return c, ErrorCustomChain
 	}
 
 	cname := C.CString(chain)
@@ -300,10 +301,9 @@ func (s *IP6Tables) Counter(chain string) (*Counter, error) {
 	_, err := C.ip6tc_get_policy(cname, count, s.h)
 
 	if err != nil {
-		return nil, err
+		return c, err
 	}
 
-	c := new(Counter)
 	c.Packets = uint64(count.pcnt)
 	c.Bytes = uint64(count.bcnt)
 
